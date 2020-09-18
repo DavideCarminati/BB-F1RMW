@@ -159,6 +159,10 @@ void refreshParamFileSD(void)
     printf("Updating the parameters file on the SD card...\n");
     magCal.getExtremes(minMag, maxMag);
     float magData_in[6] = {minMag[0], minMag[1], minMag[2], maxMag[0], maxMag[1], maxMag[2]};
+    // for(int jj = 0; jj <6; jj++)
+    // {
+    //     printf("%f", magData_in[jj]);
+    // }
     if(parametersUpdate(magData_in, "Magnetometer extremes [minXYZ; maxXYZ]\n") == MBED_SUCCESS)
     {
         printf("Done updating params!\n");

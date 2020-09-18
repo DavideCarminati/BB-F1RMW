@@ -1,4 +1,4 @@
 #include <mbed.h>
 // #include "cli_appereance.hpp"
 
-int top(Serial *serial);
+int top(BufferedSerial *serial);

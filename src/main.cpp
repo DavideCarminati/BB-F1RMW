@@ -8,7 +8,7 @@
 
 
 #include <mbed.h>
-#include <Serial.h>
+// #include <Serial.h>
 #include <EthernetInterface.h>
 
 #include "global_vars.hpp"
@@ -41,8 +41,8 @@ const char* prognostic_thread_name = "Prognostic";
 const char* sdcard_thread_name = "SDStorage";
 
 
-Serial* serial = new Serial(USBTX,USBRX,115200);
-// BufferedSerial* serial = new BufferedSerial(USBTX,USBRX,115200);
+// Serial* serial = new Serial(USBTX,USBRX,115200);
+BufferedSerial* serial = new BufferedSerial(USBTX,USBRX,115200);
 // FileHandle *fh = &serial; // oppure FileHandle fh = new FileHandle(serial)
 
 #if PIL_MODE

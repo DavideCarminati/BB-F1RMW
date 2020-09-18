@@ -22,24 +22,34 @@
 #include "sysinfo.hpp"
 #include "top.hpp"
 #include "threadinfo.hpp"
+// #include "iostream"
 
 #include "cli_appereance.hpp"
 
 int ii;
 
 const char* prompt = "user@k64f >> ";
+// const char* prompt = "mbedcoglioni";
 
-char cli_buff[128], byte[1], buff[32];
+char cli_buff[128], byte[1], buff[32], firstbyte[1];
+
+std::string cliBuffer;
 
 __command cmd_enum, command;
 
-void cli2(Serial *serial)
+void cli2(BufferedSerial *serial)
 {
-    serial->getc();
+    // serial->getc();
     // serial->read(buff, sizeof(buff));
-    printf("\033[2J\033[1;1H");
-    printf(GREEN_B("New Terminal\n"));
-    printf("%s",prompt);
+    // serial->set_blocking(0);
+    ThisThread::sleep_for(5s);
+    serial->read(firstbyte,sizeof(firstbyte));
+    // ThisThread::sleep_for(5s);
+    // printf("\033[2J\033[1;1H");
+    // printf(GREEN_B("New Terminal\n"));
+    // ThisThread::sleep_for(100);
+    std::printf("%s",prompt);
+    // ThisThread::sleep_for(100);
 
     while (1)
     {
@@ -56,7 +66,7 @@ void cli2(Serial *serial)
             
         case cmd_sys_info:
             sysinfo();
-            printf("\n%s",prompt);
+            std::printf(prompt);
             break;
 
         case cmd_thread_info:
@@ -65,7 +75,8 @@ void cli2(Serial *serial)
             break;
 
         case cmd_return:
-            printf("\n%s",prompt);
+            // serial->write(prompt, sizeof(prompt));
+            std::printf("caz");
             break;
 
         case cmd_clear:
@@ -90,36 +101,48 @@ void cli2(Serial *serial)
 
 // TODO: add cases for soft reboot (NVIC_SystemReset()), for help listing available commands and for displaying values from sensors!
 // define a function in the sensor values struct that prints its fields
-__command handleInput(Serial *serial)
+__command handleInput(BufferedSerial *serial)
 {
-    memset(cli_buff,'\0', sizeof(cli_buff));
+    // memset(cli_buff,'\0', sizeof(cli_buff));
+    cliBuffer.clear();
     cmd_enum = cmd_return; // By default, the enter command is set.
     ii = 0;
         while (ii < 127)
         {
-            char byte = serial->getc();
-            // int num = serial->read(byte, sizeof(byte));
-            serial->putc(byte);
-            // serial->write(byte, num);
+            // char byte = serial->getc();
+            char byte[1];
+            byte[0] = '\0';
+            // printf("\tgetting char\t");
+            serial->read(byte, sizeof(byte));
+            // serial->putc(byte);
+            serial->write(byte, sizeof(byte));
+            // cout << byte;
             
-            if (byte == '\r') // if pressed enter do:
+            if (!strcmp(byte,"\r")) // if pressed enter do:
             {
+                if(ii == 0)
+                {
+                    cliBuffer = "return";
+                }
                 ii = 0;
                 break;
             }
-            cli_buff[ii] = (char)byte;
+            // cli_buff[ii] = (char)byte;
+            
+            cliBuffer.append(byte);
             // cli_buff[ii] = byte;
             ii++;
         }
-        if(!strcmp(cli_buff,"top"))                     cmd_enum = cmd_top;
-        else if(!strcmp(cli_buff,"info"))               cmd_enum = cmd_sys_info;
-        else if(!strcmp(cli_buff,"thread"))             cmd_enum = cmd_thread_info;
-        else if(!strcmp(cli_buff,(const char*)'\0'))    cmd_enum = cmd_return;
-        else if(!strcmp(cli_buff,"clear"))              cmd_enum = cmd_clear;
-        else if(!strcmp(cli_buff,"help"))               cmd_enum = cmd_help;
-        else                                            cmd_enum = cmd_invalid;
+        if(!cliBuffer.compare("top"))                       cmd_enum = cmd_top;
+        else if(!cliBuffer.compare("info"))                 cmd_enum = cmd_sys_info;
+        else if(!cliBuffer.compare("thread"))               cmd_enum = cmd_thread_info;
+        else if(!cliBuffer.compare("return"))                cmd_enum = cmd_return;
+        else if(!cliBuffer.compare("clear"))                cmd_enum = cmd_clear;
+        else if(!cliBuffer.compare("help"))                 cmd_enum = cmd_help;
+        else                                                cmd_enum = cmd_invalid;
     
-        memset(cli_buff,'\0', sizeof(cli_buff)); // emptying the buffer
+        // memset(cli_buff,'\0', sizeof(cli_buff)); // emptying the buffer
+        cliBuffer.clear();
 
         return cmd_enum;
 }

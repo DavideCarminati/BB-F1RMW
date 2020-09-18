@@ -84,7 +84,7 @@ void print_cpu_stats()
     printf(GREEN("||\n"));
 }
 
-int top(Serial *serial)
+int top(BufferedSerial *serial)
 {
     exit_flag = 0;
     tim.reset();
@@ -107,7 +107,7 @@ int top(Serial *serial)
     {
         if (serial->readable())
             {
-                char k = serial->getc();
+                // char k = serial->getc();
                 exit_flag = 1;
                 break;
             }

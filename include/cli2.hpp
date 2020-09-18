@@ -9,7 +9,7 @@
 #ifndef COMMAND_LINE
 #define COMMAND_LINE
 
-void cli2(Serial *serial);
+void cli2(BufferedSerial *serial);
 
 enum __command 
         {
@@ -22,7 +22,7 @@ enum __command
             cmd_invalid,
         };
 
-__command handleInput(Serial *serial);
+__command handleInput(BufferedSerial *serial);
 void help(void);
 
 
